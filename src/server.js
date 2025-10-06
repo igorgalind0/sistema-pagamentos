@@ -3,6 +3,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const sqlite3 = require('sqlite3').verbose();
 
+const loginRoute = require('./routes/login');
+
 //Iniciando o Express no app
 const app = express();
 app.use(express.json()); //Recebe JSON no corpo da requisição
@@ -68,6 +70,8 @@ app.post('/users', async (req, res) => {
     }
   });
 });
+
+app.use('/login', loginRoute);
 
 //Iniciando servidor
 const PORT = 3000;
