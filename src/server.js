@@ -2,6 +2,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const sqlite3 = require('sqlite3').verbose();
+const userSchema = require('./schemas/userSchema');
 
 const { validateEmail, validatePassword } = require('./utils/validator');
 const errorHandler = require('./middlewares/errorHandler');
@@ -30,6 +31,15 @@ db.run(`
 
 //Rotas
 app.post('/users', async (req, res, next) => {
+  // Validação usando o schema
+  const parsed = userSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error.errors[0].message });
+  }
+
+  // Dados validados
+  const { name, email, password } = parsed.data;
+
   try {
     const { name, email, password } = req.body || {};
 
