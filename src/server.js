@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const sqlite3 = require('sqlite3').verbose();
 
 const loginRoute = require('./routes/login');
+const transfersRoute = require('./routes/transfer');
 
 //Iniciando o Express no app
 const app = express();
@@ -72,6 +73,8 @@ app.post('/users', async (req, res) => {
 });
 
 app.use('/login', loginRoute);
+
+app.use('/transfers', transfersRoute);
 
 //Iniciando servidor
 const PORT = 3000;
