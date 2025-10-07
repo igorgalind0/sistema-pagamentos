@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../middlewares/auth');
 const { db, get, run } = require('../config/db');
 const send = require('send');
+const { validateAmount } = require('../utils/validator');
 
 router.post('/', auth, async (req, res) => {
   const senderId = req.user.id;
