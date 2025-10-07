@@ -9,7 +9,7 @@ router.post('/', async (req, res) => {
   const { email, password } = req.body;
 
   //Validando
-  if (!email || password) {
+  if (!email || !password) {
     return res.status(400).json({ error: 'E-mail e senha são obrigatórios' });
   }
 
@@ -24,6 +24,10 @@ router.post('/', async (req, res) => {
     //Validando a senha
     const senhaValida = await bcrypt.compare(password, user.password);
 
+    console.log('Usuário encontrado:', user);
+    console.log('Senha recebida:', password);
+    console.log('Hash armazenado:', user.password);
+
     if (!senhaValida) {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
@@ -31,7 +35,7 @@ router.post('/', async (req, res) => {
     //Gerando token JWT
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JSW_SECRET || 'chave_secreta_temporaria',
+      process.env.JWT_SECRET || 'chave_secreta_temporaria',
       { expiresIn: '1h' }
     );
 
@@ -43,7 +47,7 @@ router.post('/', async (req, res) => {
       token,
     });
   } catch (err) {
-    console.log(error);
+    console.log(err);
     res.status(500).json({ error: 'Erro ao processar login' });
   }
 });

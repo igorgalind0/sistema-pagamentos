@@ -5,13 +5,14 @@ const sqlite3 = require('sqlite3').verbose();
 
 const loginRoute = require('./routes/login');
 const transfersRoute = require('./routes/transfer');
+const historyRoute = require('./routes/history');
 
 //Iniciando o Express no app
 const app = express();
 app.use(express.json()); //Recebe JSON no corpo da requisição
 
 //Conectando ao banco SQLite
-const db = new sqlite3.Database('./database.sqlite');
+const { db } = require('./config/db');
 
 // Cria a tabela "users" se ainda não existir
 db.run(`
@@ -26,7 +27,7 @@ db.run(`
 
 //Rotas
 app.post('/users', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password } = req.body || {};
 
   //Validando campos
   if (!name || !email || !password) {
@@ -50,11 +51,13 @@ app.post('/users', async (req, res) => {
 
       //Criando usuário e dando saldo inicial de R$ 100,00 (10000 centavos)
       db.run(
-        'INSERT TO users (name, email, password, balance_cents) VALUES (?, ?, ?, ?)',
+        'INSERT INTO users (name, email, password, balance_cents) VALUES (?, ?, ?, ?)',
         [name, email, hashedPassword, 10000],
         function (err) {
           if (err) {
-            return res.status(500).json({ error: 'erro ao criar usuário. ' });
+            return res
+              .status(500)
+              .json({ error: 'Erro ao criar usuário. ' + err.message });
           }
 
           //Retorna sucesso, sem enviar a senha
@@ -73,9 +76,9 @@ app.post('/users', async (req, res) => {
 });
 
 app.use('/login', loginRoute);
-
 app.use('/transfers', transfersRoute);
+app.use('/history', historyRoute);
 
 //Iniciando servidor
 const PORT = 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na portaa ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));

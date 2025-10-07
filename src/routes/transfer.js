@@ -4,7 +4,7 @@ const auth = require('../middlewares/auth');
 const { db, get, run } = require('../config/db');
 const send = require('send');
 
-router.post('/transfers', auth, async (req, res) => {
+router.post('/', auth, async (req, res) => {
   const senderId = req.user.id;
   const { receiverId, receiverEmail, amount } = req.body;
 
