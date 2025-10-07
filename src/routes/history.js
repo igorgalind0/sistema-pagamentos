@@ -14,7 +14,7 @@ router.get('/', auth, async (req, res) => {
       JOIN users sender ON t.sender_id = sender.id
       JOIN users receiver ON t.receiver_id = receiver.id
       WHERE t.sender_id = ? OR t.receiver_id = ?
-      ORDER BY t.timestamap DESC`,
+      ORDER BY t.timestamp DESC`,
       [userId, userId]
     );
 
