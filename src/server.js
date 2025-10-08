@@ -7,6 +7,7 @@ const userSchema = require('./schemas/userSchema');
 const { validateEmail, validatePassword } = require('./utils/validator');
 const errorHandler = require('./middlewares/errorHandler');
 
+const userRegister = require('./routes/register');
 const loginRoute = require('./routes/login');
 const transfersRoute = require('./routes/transfer');
 const historyRoute = require('./routes/history');
@@ -30,84 +31,7 @@ db.run(`
 `);
 
 //Rotas
-app.post('/users', async (req, res, next) => {
-  // Validação usando o schema
-  const parsed = userSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: parsed.error.errors[0].message });
-  }
-
-  // Dados validados
-  const { name, email, password } = parsed.data;
-
-  try {
-    const { name, email, password } = req.body || {};
-
-    //Validação de campos obrigatórios
-    if (!name || !email || !password) {
-      const err = new Error('Nome, e-mail e senha são obrigatórios');
-      err.statusCode = 400;
-      err.code = 'BAD_INPUT';
-      throw err;
-    }
-
-    //Validação de formato do e-mail
-    if (!validateEmail(email)) {
-      const err = new Error('E-mail inválido');
-      err.statusCode = 400;
-      err.code = 'BAD_EMAIL';
-      throw err;
-    }
-
-    //Validação da senha
-    if (!validatePassword(password)) {
-      const err = new Error('A senha deve ter no mínimo 6 caracteres');
-      err.statusCode = 400;
-      err.code = 'BAD_PASSWORD';
-      throw err;
-    }
-
-    //Verifica se o e-mail já existe
-    db.get(
-      'SELECT * FROM users WHERE email = ?',
-      [email],
-      async (err, user) => {
-        if (err) return next(err);
-
-        if (user) {
-          const conflictErr = new Error('E-mail já cadastrado');
-          conflictErr.statusCode = 409;
-          conflictErr.code = 'EMAIL_EXISTS';
-          return next(conflictErr);
-        }
-
-        try {
-          const hashedPassword = await bcrypt.hash(password, 10);
-
-          db.run(
-            'INSERT INTO users (name, email, password, balance_cents) VALUES (?, ?, ?, ?)',
-            [name, email, hashedPassword, 10000],
-            function (err) {
-              if (err) return next(err);
-
-              return res.status(201).json({
-                id: this.lastID,
-                name,
-                email,
-                balance_cents: 10000,
-              });
-            }
-          );
-        } catch (hashErr) {
-          return next(hashErr);
-        }
-      }
-    );
-  } catch (err) {
-    next(err);
-  }
-});
-
+app.use('/register', userRegister);
 app.use('/login', loginRoute);
 app.use('/transfers', transfersRoute);
 app.use('/history', historyRoute);

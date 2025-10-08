@@ -22,7 +22,7 @@ function auth(req, res, next) {
       process.env.JWT_SECRET || 'chave_secreta_temporaria'
     );
 
-    req.user = { id: decoded.userId };
+    req.user = { id: decoded.id };
 
     next();
   } catch (err) {

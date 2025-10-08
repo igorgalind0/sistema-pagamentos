@@ -1,15 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middlewares/auth');
-const { db, get, run } = require('../config/db');
-const send = require('send');
-const { validateAmount } = require('../utils/validator');
+const { get, run } = require('../config/db');
 
 router.post('/', auth, async (req, res) => {
-  const senderId = req.user.id;
+  const senderId = req.user?.id; // garante que req.user existe
   const { receiverId, receiverEmail, amount } = req.body;
 
-  //Validando
+  // Validações básicas
   if (!amount || amount <= 0) {
     return res.status(400).json({ error: 'Valor inválido para transferência' });
   }
@@ -19,6 +17,7 @@ router.post('/', auth, async (req, res) => {
   }
 
   try {
+    // Busca destinatário
     const receiver = receiverId
       ? await get('SELECT * FROM users WHERE id = ?', [receiverId])
       : await get('SELECT * FROM users WHERE email = ?', [receiverEmail]);
@@ -33,40 +32,47 @@ router.post('/', auth, async (req, res) => {
         .json({ error: 'Não é possível transferir para si mesmo' });
     }
 
-    //Inicia transação
-    await run('BEGIN TRANSACTION');
-
-    //Pega saldo do remetente
+    // Busca remetente
     const sender = await get('SELECT * FROM users WHERE id = ?', [senderId]);
 
+    if (!sender) {
+      return res.status(404).json({ error: 'Remetente não encontrado' });
+    }
+
     if (sender.balance_cents < amount) {
-      await run('ROLLBACK');
       return res.status(400).json({ error: 'Saldo insuficiente' });
     }
 
-    //Atualizando saldo
-    await run(
-      'UPDATE users SET balance_cents = balance_cents - ? WHERE id = ?',
-      [amount, senderId]
-    );
+    // Inicia transação
+    await run('BEGIN TRANSACTION');
 
-    await run(
-      'UPDATE users SET balance_cents = balance_cents + ? WHERE id = ?',
-      [amount, receiver.id]
-    );
+    try {
+      // Atualiza saldos
+      await run(
+        'UPDATE users SET balance_cents = balance_cents - ? WHERE id = ?',
+        [amount, senderId]
+      );
+      await run(
+        'UPDATE users SET balance_cents = balance_cents + ? WHERE id = ?',
+        [amount, receiver.id]
+      );
 
-    //Registrando transferência
-    await run(
-      'INSERT INTO transfers (sender_id, receiver_id, amount_cents) VALUES (?, ?, ?)',
-      [senderId, receiver.id, amount]
-    );
+      // Registra transferência
+      await run(
+        'INSERT INTO transfers (sender_id, receiver_id, amount_cents) VALUES (?, ?, ?)',
+        [senderId, receiver.id, amount]
+      );
 
-    await run('COMMIT');
+      await run('COMMIT');
 
-    res.status(201).json({ message: 'Transferência realizada com sucesso.' });
+      res.status(201).json({ message: 'Transferência realizada com sucesso.' });
+    } catch (errTrans) {
+      await run('ROLLBACK');
+      console.error('Erro na transação:', errTrans);
+      res.status(500).json({ error: 'Erro ao processar transferência' });
+    }
   } catch (err) {
-    await run('ROLLBACK');
-    console.error(err);
+    console.error('Erro geral:', err);
     res.status(500).json({ error: 'Erro ao processar transferência' });
   }
 });
