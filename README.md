@@ -80,7 +80,6 @@ A API estará disponível em <http://localhost:3000>
 - POST <http://localhost:3000/register>
 - Criando Usuário 01
     ```bash
-    json
     {
       "name": "Usuário 01",
       "email": "user01@example.com",
@@ -91,7 +90,6 @@ A API estará disponível em <http://localhost:3000>
 
 - Criando Usuário 02
     ```bash
-    json
     {
       "name": "Usuário 02",
       "email": "user02@example.com",
@@ -113,7 +111,6 @@ A API estará disponível em <http://localhost:3000>
 - Logando na conta
 
     ``` bash
-    json
     {
       "email": "user1@example.com",
       "password": "senha123"
@@ -157,4 +154,5 @@ A API estará disponível em <http://localhost:3000>
 - Adicionei middleware auth.js para autenticação JWT.
 - Usei Zod para validação de schema, garantindo dados corretos antes de inserir no banco.
 - Mantive o banco SQLite local para simplicidade, suficiente para o teste.
+
 
