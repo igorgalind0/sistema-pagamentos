@@ -102,12 +102,12 @@ A API estará disponível em <http://localhost:3000>
     
 - Resposta no body
     ```bash
-        {
-          "id": 1,
-          "name": "Usuário 01",
-          "email": "user01@example.com",
-          "balance_cents": 10000 //Valor inicial (R$ 100,00)
-        }
+     {
+       "id": 1,
+       "name": "Usuário 01",
+       "email": "user01@example.com",
+       "balance_cents": 10000 //Valor inicial (R$ 100,00)
+     }
 
 - POST <http:localhost/3000/login>
 - Logando na conta
@@ -157,3 +157,4 @@ A API estará disponível em <http://localhost:3000>
 - Adicionei middleware auth.js para autenticação JWT.
 - Usei Zod para validação de schema, garantindo dados corretos antes de inserir no banco.
 - Mantive o banco SQLite local para simplicidade, suficiente para o teste.
+
