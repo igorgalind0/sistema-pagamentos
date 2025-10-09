@@ -74,7 +74,7 @@ A API estará disponível em <http://localhost:3000>
 - **POST /register** - Rota para cadastrar usuário
 - **POST /login** - Rota para logar usuário
 - **POST /transfers** - Rota para transferir dinheiro a outro usuário
-- **GET /history** - Rota para ver histórico de transações
+- **GET /history/userId** - Rota para ver histórico de transações
 
 ## Testando as rotas com Postman
 - POST <http://localhost:3000/register>
@@ -157,9 +157,8 @@ Agora se você entrar na rota de login, e logar na conta Usuário 02, verá que 
 - Vendo todos os históricos de transações do usuário através do ID
 - Traz todas as transações que o usuário participou, como remetente ou destinatário
 
+- Ex: <http:localhost:3000/history/1>
     ```bash
-        Ex: <http:localhost:3000/history/1>
-
         Resposta:
         [
             {
@@ -179,3 +178,4 @@ Agora se você entrar na rota de login, e logar na conta Usuário 02, verá que 
 - Adicionei middleware auth.js para autenticação JWT.
 - Usei Zod para validação de schema, garantindo dados corretos antes de inserir no banco.
 - Mantive o banco SQLite local para simplicidade, suficiente para o teste.
+
