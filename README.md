@@ -107,12 +107,14 @@ A API estará disponível em <http://localhost:3000>
        "balance_cents": 10000 //Valor inicial (R$ 100,00)
      }
 
+---
+
 - POST <http:localhost/3000/login>
 - Logando na conta
 
     ``` bash
     {
-      "email": "user1@example.com",
+      "email": "user01@example.com",
       "password": "senha123"
     }
     
@@ -123,12 +125,13 @@ A API estará disponível em <http://localhost:3000>
       "user": {
         "id": 1,
         "name": "Usuário 1",
-        "email": "user1@example.com",
+        "email": "user01@example.com",
         "balance_cents": 10000 //Valor inicial (R$ 100,00)
       },
       "token": "<SEU_TOKEN_AQUI>" //Copie o token 
     }
 
+--- 
 - POST <http:localhost/transfers>
 - Transferindo dinheiro para outra conta
 - Coloque o <SEU_TOKEN_AQUI> que citei anterior mente no Headers do Postman da seguinte forma:
@@ -137,7 +140,7 @@ A API estará disponível em <http://localhost:3000>
 - Agora vamaos para a transferência
     ```bash
     {
-      "receiverEmail": "user2@example.com",
+      "receiverEmail": "user02@example.com",
       "amount": 5000
     }
 
@@ -147,12 +150,32 @@ A API estará disponível em <http://localhost:3000>
       "message": "Transferência realizada com sucesso."
     }
     
-- Agora se você entrar na rota de login, e logar na conta Usuário 02, verá que o valor inicial (R$ 100,00) estará acumulado com o valor da transferência recebida (R$ 50,00)
+Agora se você entrar na rota de login, e logar na conta Usuário 02, verá que o valor inicial (R$ 100,00) estará acumulado com o valor da transferência recebida (R$ 50,00)
+
+---
+- GET <http:localhost:3000/history/:userId>
+- Vendo todos os históricos de transações do usuário através do ID
+- Traz todas as transações que o usuário participou, como remetente ou destinatário
+
+    ```bash
+        Ex: <http:localhost:3000/history/1>
+
+        Resposta:
+        [
+            {
+                "id": 1,
+                "sender_id": 1,
+                "receiver_id": 2,
+                "amount_cents": 5000,
+                "timestamp": "2025-10-09 19:27:18",
+                "sender_name": "Usuário 01",
+                "receiver_name": "Usuário 02"
+            }
+        ]
+
 
 ## Decisões de Design
 - Separei as rotas em arquivos individuais (register.js, login.js, transfer.js, history.js) para facilitar manutenção.
 - Adicionei middleware auth.js para autenticação JWT.
 - Usei Zod para validação de schema, garantindo dados corretos antes de inserir no banco.
 - Mantive o banco SQLite local para simplicidade, suficiente para o teste.
-
-
